@@ -1,10 +1,8 @@
 package com.epam.task3.dao.util;
 
 import com.epam.task3.dao.util.exception.ConnectionPoolException;
-import com.epam.task3.dao.util.resources.DBResourceManager;
 
 import java.sql.*;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -53,7 +51,6 @@ public class ConnectionPool {
 
 
     public void initPooldata() throws ConnectionPoolException {
-        Locale.setDefault(Locale.ENGLISH);
         try {
             Class.forName(driverName);
             givenAwayConQueue = new ArrayBlockingQueue<Connection>(poolSize);

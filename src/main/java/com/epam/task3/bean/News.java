@@ -42,24 +42,4 @@ public class News {
     public void setAuthor(String author) {
         this.author = author;
     }
-
-    public boolean equals(Object object) {
-        if (this == object) return true;
-        if (object == null || getClass() != object.getClass()) return false;
-        if (!super.equals(object)) return false;
-
-        News news = (News) object;
-
-        if (!category.equals(news.category)) return false;
-        if (!title.equals(news.title)) return false;
-        return author.equals(news.author);
-    }
-
-    public int hashCode() {
-        int result = super.hashCode();
-        result = 31 * result + category.hashCode();
-        result = 31 * result + title.hashCode();
-        result = 31 * result + author.hashCode();
-        return result;
-    }
 }

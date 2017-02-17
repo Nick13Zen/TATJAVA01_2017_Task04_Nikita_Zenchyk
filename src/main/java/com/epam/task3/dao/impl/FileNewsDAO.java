@@ -10,25 +10,21 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.sql.*;
-import java.util.ArrayList;
+import java.util.LinkedList;
 
 /**
  * Class to work with data files.
  */
 public class FileNewsDAO implements NewsDAO {
 
-    final Logger logger = LogManager.getLogger(AddNews.class.getName());
+    private static final Logger logger = LogManager.getLogger(AddNews.class.getName());
 
     private ConnectionPool pool = ConnectionPool.getConnectionPool();
-    private Connection connection = null;
 
-    private final String DB_NAME = "news";
-    private final String INSERT_QUERY = "INSERT INTO " + DB_NAME + " (title, category, author) VALUES (?, ?, ?)";
-    private final String SELECT_TITLE_QUERY = "SELECT * FROM " + DB_NAME + " WHERE title = ?";
-    private final String SELECT_CATEGORY_QUERY = "SELECT * FROM " + DB_NAME + " WHERE category = ?";
-    private final String SELECT_AUTHOR_QUERY = "SELECT * FROM " + DB_NAME + " WHERE author = ?";
-
-    private ArrayList<News> findNews;
+    private final String INSERT_QUERY = "INSERT INTO news (title, category, author) VALUES (?, ?, ?)";
+    private final String SELECT_TITLE_QUERY = "SELECT * FROM news WHERE title = ?";
+    private final String SELECT_CATEGORY_QUERY = "SELECT * FROM news WHERE category = ?";
+    private final String SELECT_AUTHOR_QUERY = "SELECT * FROM news WHERE author = ?";
 
     /**
      * Method writes current news, got as argument, to database
@@ -39,45 +35,51 @@ public class FileNewsDAO implements NewsDAO {
     @Override
     public void addNews(News news) throws DAOException {
         PreparedStatement preparedStatement = null;
-        Connection connection = null;
-        try {
+        try (Connection connection = pool.takeConnection()) {
             preparedStatement = connection.prepareStatement(INSERT_QUERY);
             preparedStatement.setString(1, news.getTitle());
             preparedStatement.setString(2, news.getCategory());
             preparedStatement.setString(3, news.getAuthor());
             preparedStatement.executeUpdate();
-        } catch (SQLException e) {
-            logger.error(e);
+        } catch (SQLException | ConnectionPoolException e) {
+            throw new DAOException();
+        } finally {
+            try {
+                if (preparedStatement != null) {
+                    preparedStatement.close();
+                }
+            } catch (SQLException e) {
+                logger.error(e);
+            }
         }
     }
 
     @Override
-    public ArrayList<News> getNewsByCategory(String searchparameter) throws DAOException {
+    public LinkedList<News> getNewsByCategory(String searchparameter) throws DAOException {
         return getNews(searchparameter, SELECT_CATEGORY_QUERY);
     }
 
     @Override
-    public ArrayList<News> getNewsByAutor(String searchparameter) throws DAOException {
+    public LinkedList<News> getNewsByAutor(String searchparameter) throws DAOException {
         return getNews(searchparameter, SELECT_AUTHOR_QUERY);
     }
 
     @Override
-    public ArrayList<News> getNewsByTitle(String searchparameter) throws DAOException {
+    public LinkedList<News> getNewsByTitle(String searchparameter) throws DAOException {
         return getNews(searchparameter, SELECT_TITLE_QUERY);
     }
 
     @Override
-    public void createConnection() throws DAOException {
+    public void init() throws DAOException {
         try {
             pool.initPooldata();
-            connection = pool.takeConnection();
         } catch (ConnectionPoolException e) {
             throw new DAOException(e);
         }
     }
 
     @Override
-    public void destroyConnection() throws DAOException {
+    public void destroy() {
         pool.dispose();
     }
 
@@ -88,12 +90,12 @@ public class FileNewsDAO implements NewsDAO {
      * @throws DAOException
      */
 
-    private ArrayList<News> getNews(String searchparam, String quety) throws DAOException {
-        findNews = new ArrayList<>();
+    private LinkedList<News> getNews(String searchparam, String query) throws DAOException {
+        LinkedList<News> findNews = new LinkedList<>();
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
-        try {
-            preparedStatement = connection.prepareStatement(quety);
+        try (Connection connection = pool.takeConnection()) {
+            preparedStatement = connection.prepareStatement(query);
             preparedStatement.setString(1, searchparam);
             resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
@@ -102,8 +104,23 @@ public class FileNewsDAO implements NewsDAO {
                         resultSet.getString("Author"));
                 findNews.add(news);
             }
-        } catch (SQLException e) {
+        } catch (SQLException | ConnectionPoolException e) {
             throw new DAOException(e);
+        } finally {
+            try {
+                if (preparedStatement != null) {
+                    preparedStatement.close();
+                }
+            } catch (SQLException e) {
+                logger.error(e);
+            }
+            try {
+                if (resultSet != null) {
+                    resultSet.close();
+                }
+            } catch (SQLException e) {
+                logger.error(e);
+            }
         }
         return findNews;
     }

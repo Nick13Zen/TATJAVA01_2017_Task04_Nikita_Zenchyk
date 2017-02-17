@@ -18,7 +18,7 @@ import java.util.ArrayList;
  */
 class FileReadNewsDAOTest {
     FileNewsDAO fileNewsDAO = new FileNewsDAO();
-    ConnectionPool pool = new ConnectionPool();
+    ConnectionPool pool = ConnectionPool.getConnectionPool();
     Connection connection = null;
 
     @BeforeMethod

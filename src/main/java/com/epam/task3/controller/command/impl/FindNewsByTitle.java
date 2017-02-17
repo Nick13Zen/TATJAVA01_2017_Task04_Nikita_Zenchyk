@@ -9,22 +9,23 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 
 /**
  * Created by Nikita_Zenchyk on 2/13/2017.
  */
 public class FindNewsByTitle implements Command {
-    final Logger logger = LogManager.getLogger(AddNews.class.getName());
-    static final String REQUEST_SPLITER = "-";
+   private static final Logger logger = LogManager.getLogger(AddNews.class.getName());
+   private static final String REQUEST_SPLITER = "-";
 
     @Override
     public String execute(String request) {
-        String response = null;
+        String response;
         String[] findparametr = request.split(REQUEST_SPLITER);
         ServiceFactory serviceFactory = ServiceFactory.getInstance();
         NewsService newsService = serviceFactory.getNewsService();
         try {
-            ArrayList<News> newsList = newsService.getNewsByTitle(findparametr[1]);
+            LinkedList<News> newsList = newsService.getNewsByTitle(findparametr[1]);
             StringBuilder stringBuilder = new StringBuilder();
             for (News news : newsList) {
                     stringBuilder.append(" " +
@@ -38,6 +39,7 @@ public class FindNewsByTitle implements Command {
             }
         } catch (ServiceException e) {
             logger.error(e);
+            response = "Error getting news.";
 
         }
         return response;

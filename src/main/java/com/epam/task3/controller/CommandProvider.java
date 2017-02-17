@@ -7,9 +7,7 @@ import com.epam.task3.controller.command.impl.*;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- *
- */
+
 final class CommandProvider {
     private final Map<CommandName, Command> repository = new HashMap<>();
 
@@ -22,8 +20,8 @@ final class CommandProvider {
     }
 
     Command getCommand(String name) {
-        CommandName commandName = null;
-        Command command = null;
+        CommandName commandName;
+        Command command;
 
         try {
             commandName = CommandName.valueOf(name.toUpperCase());

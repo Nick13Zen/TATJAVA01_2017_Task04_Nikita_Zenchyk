@@ -1,8 +1,6 @@
 package com.epam.task3.controller.command;
 
-/**
- *
- */
+
 public enum CommandName {
     ADD_NEWS,
     FIND_NEWS_BY_TITLE,

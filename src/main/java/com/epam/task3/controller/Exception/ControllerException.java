@@ -1,4 +1,4 @@
-package com.epam.task3.controller.Exception;
+package com.epam.task3.controller.exception;
 
 /**
  *

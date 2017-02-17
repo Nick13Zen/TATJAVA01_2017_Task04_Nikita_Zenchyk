@@ -7,20 +7,18 @@ import com.epam.task3.dao.factory.DAOFactory;
 import com.epam.task3.service.NewsService;
 import com.epam.task3.service.exception.ServiceException;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 
 /**
  *
  */
 public class NewsServiceImpl implements NewsService {
-    DAOFactory daoFactory = DAOFactory.getInstance();
-    NewsDAO newsDAO;
+    private static final DAOFactory daoFactory = DAOFactory.getInstance();
+    private static final NewsDAO newsDAO = daoFactory.getNewDAO();
 
     @Override
     public void addNews(News news) throws ServiceException {
         try {
-            DAOFactory daoFactory = DAOFactory.getInstance();
-            NewsDAO newsDAO = daoFactory.getNewDAO();
             if (validator(news)) {
                 throw new ServiceException();
             } else {
@@ -32,11 +30,8 @@ public class NewsServiceImpl implements NewsService {
     }
 
     @Override
-    public ArrayList<News> getNewsByTitle(String searchparameter) throws ServiceException {
-        NewsDAO newsDAO;
+    public LinkedList<News> getNewsByTitle(String searchparameter) throws ServiceException {
         try {
-            DAOFactory daoFactory = DAOFactory.getInstance();
-            newsDAO = daoFactory.getNewDAO();
             return newsDAO.getNewsByTitle(searchparameter);
         } catch (DAOException e) {
             throw new ServiceException(e);
@@ -44,11 +39,8 @@ public class NewsServiceImpl implements NewsService {
     }
 
     @Override
-    public ArrayList<News> getNewsByCategory(String searchparameter) throws ServiceException {
-        NewsDAO newsDAO;
+    public LinkedList<News> getNewsByCategory(String searchparameter) throws ServiceException {
         try {
-            DAOFactory daoFactory = DAOFactory.getInstance();
-            newsDAO = daoFactory.getNewDAO();
             return newsDAO.getNewsByCategory(searchparameter);
         } catch (DAOException e) {
             throw new ServiceException(e);
@@ -56,7 +48,7 @@ public class NewsServiceImpl implements NewsService {
     }
 
     @Override
-    public ArrayList<News> getNewsByAutor(String searchparameter) throws ServiceException {
+    public LinkedList<News> getNewsByAutor(String searchparameter) throws ServiceException {
         try {
             return newsDAO.getNewsByAutor(searchparameter);
         } catch (DAOException e) {
@@ -65,19 +57,18 @@ public class NewsServiceImpl implements NewsService {
     }
 
     @Override
-    public void createConnection() throws ServiceException {
-        newsDAO = daoFactory.getNewDAO();
+    public void init() throws ServiceException {
         try {
-            newsDAO.createConnection();
+            newsDAO.init();
         } catch (DAOException e) {
             throw new ServiceException(e);
         }
     }
 
     @Override
-    public void destroyCeonnection() throws ServiceException {
+    public void destroy() throws ServiceException {
         try {
-            newsDAO.destroyConnection();
+            newsDAO.destroy();
         } catch (DAOException e) {
             throw new ServiceException(e);
         }
